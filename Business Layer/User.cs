@@ -22,8 +22,22 @@ namespace Business_Layer
         [MaxLength(40)]
         public string Password { get; set; }
 
+        [Required]
+        public float Balance { get; set; }
+
+
         private User() { }
-
-
+        public User(string username, string password)
+        {
+            this.Username = username;
+            this.Password = password;
+            this.Balance = 0;
+        }
+        public User(string username, string password, float balance)
+        {
+            this.Username = username;
+            this.Password = password;
+            this.Balance = balance;
+        }
     }
 }
