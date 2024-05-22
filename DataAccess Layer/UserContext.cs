@@ -89,7 +89,7 @@ namespace DataAccess_Layer
             
             if(userFromDb is null)
             {
-                throw new ArgumentException($"Airport with id {key} does not exist.");
+                throw new ArgumentException($"User with id {key} does not exist.");
             }
             _context.Users.Remove(userFromDb);
             await _context.SaveChangesAsync();

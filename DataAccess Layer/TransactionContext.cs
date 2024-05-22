@@ -19,7 +19,7 @@ namespace DataAccess_Layer
         public async Task CreateAsync(Transaction entity)
         {
             await _context.Transactions.AddAsync(entity);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
 
@@ -69,21 +69,21 @@ namespace DataAccess_Layer
                 entity.UserId = userFromDb.Id;
             }
 
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
         public async Task DeleteAsync(int key)
         {
             Transaction transactionFromDb = await ReadAsync(key, false, false);
-            if (transactionFromDb != null)
-            {
-                _context.Transactions.Remove(transactionFromDb);
-                _context.SaveChanges();
-            }
-            else
+            if (transactionFromDb is null)
             {
                 throw new ArgumentException("There is no transaction with this id.");
             }
+
+            _context.Transactions.Remove(transactionFromDb);
+            await _context.SaveChangesAsync();
+
+
         }
     }
 }
