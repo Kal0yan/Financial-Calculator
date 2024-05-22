@@ -62,6 +62,10 @@ namespace DataAccess_Layer
             if (useNavigationalProperties)
             {
                 User userFromDb = await _context.Users.FindAsync(entity.UserId);
+                if (userFromDb is null)
+                {
+                    throw new ArgumentException("There is no user making this transaction. ");
+                }
                 entity.UserId = userFromDb.Id;
             }
 
