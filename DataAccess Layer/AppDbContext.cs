@@ -8,10 +8,9 @@ using System.Threading.Tasks;
 
 namespace DataAccess_Layer
 {
-    internal class AppDbContext : DbContext
+    public class AppDbContext : DbContext
     {
         public DbSet<User> Users { get; set; }
-
         public DbSet<Transaction> Transactions { get; set; }
 
         public AppDbContext() : base() { }

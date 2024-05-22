@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 
@@ -25,6 +26,8 @@ namespace Business_Layer
         [Required]
         public float Balance { get; set; }
 
+        [ForeignKey(nameof(Transaction))]
+        public List<Transaction> Transactions { get; set; }
 
         private User() { }
         public User(string username, string password)

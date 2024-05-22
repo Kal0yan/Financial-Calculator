@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Business_Layer
 {
@@ -25,7 +26,9 @@ namespace Business_Layer
         [Required]
         public bool IncomeOrOutcome { get; set; }
 
-
+        [Required]
+        [ForeignKey(nameof(User))]
+        public int UserId { get; set; }
 
         private Transaction() { }
         public Transaction(string category, float amount)
