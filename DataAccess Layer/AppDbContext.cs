@@ -19,7 +19,7 @@ namespace DataAccess_Layer
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer("Server=LAPTOP-AT94SBBO\\SQLEXPRESS;Database=CountriesDb11E2024;Trusted_Connection=True;");
+            optionsBuilder.UseSqlServer("Server=DESKTOP-HOUCDN1\\MSSQLSERVER01;Database=FinancialCalculatorDb;Trusted_Security=True;");
             base.OnConfiguring(optionsBuilder);
         }
 
