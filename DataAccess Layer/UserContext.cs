@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace DataAccess_Layer
 {
-    internal class UserContext : IDB<User, int>
+    public class UserContext : IDB<User, int>
     {
         private readonly AppDbContext _context;
 

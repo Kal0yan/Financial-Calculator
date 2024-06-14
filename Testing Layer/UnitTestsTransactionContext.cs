@@ -14,16 +14,6 @@ namespace Testing_Layer
 
         static AppDbContext _context;
 
-        [TearDown]
-        public void TearDown()
-        {
-            if (_context != null)
-            {
-                _context.Dispose();
-                _context = null;
-            }
-        }
-
         [SetUp]
         public void Setup()
         {
@@ -34,6 +24,15 @@ namespace Testing_Layer
 
         }
 
+        [TearDown]
+        public void TearDown()
+        {
+            if (_context != null)
+            {
+                _context.Dispose();
+                _context = null;
+            }
+        }
 
         // Unit tests
 
