@@ -11,19 +11,19 @@ namespace DataAccess_Layer
     public class TransactionContext : IDB<Transaction, int>
     {
         private readonly AppDbContext _context;
-        public TransactionContext(AppDbContext context)
+        public TransactionContext()
         {
-            _context = context;
+            _context = new AppDbContext();
         }
 
-        public async Task CreateAsync(Transaction entity)
+        public void Create(Transaction entity)
         {
-            await _context.Transactions.AddAsync(entity);
-            await _context.SaveChangesAsync();
+            _context.Transactions.Add(entity);
+            _context.SaveChanges();
         }
 
 
-        public async Task<Transaction> ReadAsync(int key, bool isReadOnly = true, bool useNavigationalProperties = false)
+        public Transaction Read(int key, bool isReadOnly = true, bool useNavigationalProperties = false)
         {
             IQueryable<Transaction> query = _context.Transactions;
 
@@ -35,10 +35,10 @@ namespace DataAccess_Layer
             {
                 query = query.Include(t => t.UserId);
             }
-            return await query.SingleOrDefaultAsync(t => t.Id == key);
+            return query.SingleOrDefault(t => t.Id == key);
         }
 
-        public async Task<List<Transaction>> ReadAllAsync(bool isReadOnly = true, bool useNavigationalProperties = false)
+        public List<Transaction> ReadAll(bool isReadOnly = true, bool useNavigationalProperties = false)
         {
             IQueryable<Transaction> query = _context.Transactions;
 
@@ -51,17 +51,17 @@ namespace DataAccess_Layer
                 query = query.Include(t => t.UserId);
             }
 
-            return await query.ToListAsync();
+            return query.ToList();
         }
 
-        public async Task UpdateAsync(Transaction entity, bool useNavigationalProperties = false)
+        public void Update(Transaction entity, bool useNavigationalProperties = false)
         {
-            Transaction transactionFromDb = await ReadAsync(entity.Id, false, useNavigationalProperties);
+            Transaction transactionFromDb = Read(entity.Id, false, useNavigationalProperties);
             _context.Entry(transactionFromDb).CurrentValues.SetValues(entity);
 
             if (useNavigationalProperties)
             {
-                User userFromDb = await _context.Users.FindAsync(entity.UserId);
+                User userFromDb = _context.Users.Find(entity.UserId);
                 if (userFromDb is null)
                 {
                     throw new ArgumentException("There is no user making this transaction. ");
@@ -69,21 +69,19 @@ namespace DataAccess_Layer
                 entity.UserId = userFromDb.Id;
             }
 
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
         }
 
-        public async Task DeleteAsync(int key)
+        public void Delete(int key)
         {
-            Transaction transactionFromDb = await ReadAsync(key, false, false);
+            Transaction transactionFromDb =  Read(key, false, false);
             if (transactionFromDb is null)
             {
                 throw new ArgumentException("There is no transaction with this id.");
             }
 
             _context.Transactions.Remove(transactionFromDb);
-            await _context.SaveChangesAsync();
-
-
+            _context.SaveChanges();
         }
     }
 }

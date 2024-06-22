@@ -19,13 +19,51 @@ namespace DataAccess_Layer
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer("Server=DESKTOP-HOUCDN1\\MSSQLSERVER01;Database=FinancialCalculatorDb;Trusted_Security=True;");
+            optionsBuilder.UseSqlServer("Server=DESKTOP-750E6EL\\MSSQLSERVER01;Database=FinancialCalculator;Trusted_Connection=True;TrustServerCertificate=True;");
             base.OnConfiguring(optionsBuilder);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<User>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+
+                entity.Property(e => e.Username)
+                    .IsRequired()
+                    .HasMaxLength(100);
+
+                entity.Property(e => e.Password)
+                    .IsRequired()
+                    .HasMaxLength(40);
+
+                entity.Property(e => e.Balance)
+                    .IsRequired();
+
+                entity.HasMany(e => e.Transactions)
+                    .WithOne(t => t.User)
+                    .HasForeignKey(t => t.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // Transaction entity configuration
+            modelBuilder.Entity<Transaction>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+
+                entity.Property(e => e.Category)
+                    .IsRequired()
+                    .HasMaxLength(100);
+
+                entity.Property(e => e.Amount)
+                    .IsRequired();
+
+                entity.Property(e => e.IncomeOrOutcome)
+                    .IsRequired();
+
+                entity.Property(e => e.UserId)
+                    .IsRequired();
+            });
         }
     }
 }

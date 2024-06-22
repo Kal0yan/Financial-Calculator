@@ -27,30 +27,30 @@ namespace Business_Layer
         public bool IncomeOrOutcome { get; set; }
 
         [Required]
-        [ForeignKey(nameof(User))]
         public int UserId { get; set; }
+
+        public User User {get;set;} 
 
         private Transaction() { }
         public Transaction(string category, float amount)
         {
             this.Category = category;
             this.Amount = amount;
-
         }
-        public Transaction(string category, float amount, string description)
+        public Transaction(string category, float amount, string description, bool incomeOrOutcome, int userId)
         {
             this.Category = category;
             this.Amount = amount;
             this.Description = description;
-
-            if (amount > 0) IncomeOrOutcome = true;
-            else IncomeOrOutcome = false;
+            IncomeOrOutcome = incomeOrOutcome;
+            this.UserId = userId;
         }
-        public Transaction(string category, float amount, bool incomeOrOutcome)
+        public Transaction(string category, float amount, bool incomeOrOutcome, int userId)
         {
             this.Category = category;
             this.Amount = amount;
             this.IncomeOrOutcome = incomeOrOutcome;
+            this.UserId=userId;
         }
     }
 }

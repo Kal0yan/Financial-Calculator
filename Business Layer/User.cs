@@ -26,7 +26,6 @@ namespace Business_Layer
         [Required]
         public float Balance { get; set; }
 
-        [ForeignKey(nameof(Transaction))]
         public List<Transaction> Transactions { get; set; }
 
         private User() { }
