@@ -20,7 +20,7 @@ namespace Testing_Layer
             DbContextOptionsBuilder builder = new DbContextOptionsBuilder();
             builder.UseInMemoryDatabase("TestDatabase");
             _dbContext = new AppDbContext(builder.Options);
-            _userContext = new UserContext(_dbContext);
+            _userContext = new UserContext();
         }
 
         [OneTimeTearDown]
@@ -45,7 +45,7 @@ namespace Testing_Layer
             User newUser = new User("Georgi", "go60123");
 
 
-            await _userContext.CreateAsync(newUser);
+            _userContext.Create(newUser);
 
             User userFromDb = await _dbContext.Users
                 .FirstOrDefaultAsync(u => u.Username == "Georgi" && u.Password == "go60123");
@@ -65,7 +65,7 @@ namespace Testing_Layer
             newUser.Transactions.Add(tr2);
             newUser.Transactions.Add(tr3);
 
-            await _userContext.CreateAsync(newUser);
+            _userContext.Create(newUser);
 
             User userFromDb = await _dbContext.Users.Include(u => u.Transactions)
                 .FirstOrDefaultAsync(u => u.Username == "Ivan" && u.Password == "ivan123");
@@ -76,7 +76,7 @@ namespace Testing_Layer
         [Test]
         public async Task ReadTestV1()
         {
-            User userFromDb = await _userContext.ReadAsync(0);
+            User userFromDb = _userContext.Read(0);
             Assert.That(userFromDb is null, "ReadAsync() does not work without users!");
         }
         [Test]
@@ -84,8 +84,8 @@ namespace Testing_Layer
         {
             User newUser = new User("Petar", "petar123");
 
-            await _userContext.CreateAsync(newUser);
-            User userFromDb = await _userContext.ReadAsync(newUser.Id);
+            _userContext.Create(newUser);
+            User userFromDb = _userContext.Read(newUser.Id);
 
             Assert.That(userFromDb is not null, "ReadAsync() does not work with users!");
         }
@@ -101,9 +101,9 @@ namespace Testing_Layer
             newUser.Transactions.Add(tr1);
             newUser.Transactions.Add(tr2);
             newUser.Transactions.Add(tr3);
-            await _userContext.CreateAsync(newUser);
+            _userContext.Create(newUser);
 
-            User userFromDb = await _userContext.ReadAsync(newUser.Id, true, true);
+            User userFromDb = _userContext.Read(newUser.Id, true, true);
 
             Assert.That(userFromDb.Transactions.Count == 3,
                 "ReadAsync() for users does not work properly with navigational properties! ");
@@ -116,11 +116,11 @@ namespace Testing_Layer
             User u2 = new User("Kaloyan", "kaloyan123");
             User u3 = new User("Plamen", "plamen123");
 
-            int countBefore = (await _userContext.ReadAllAsync()).Count;
-            await _userContext.CreateAsync(u1);
-            await _userContext.CreateAsync(u2);
-            await _userContext.CreateAsync(u3);
-            int countAfter = (await _userContext.ReadAllAsync()).Count;
+            int countBefore = _userContext.ReadAll().Count;
+            _userContext.Create(u1);
+            _userContext.Create(u2);
+            _userContext.Create(u3);
+            int countAfter = _userContext.ReadAll().Count;
 
             Assert.That(countBefore + 3 == countAfter, "ReadAllAsync() for users does not work!");
         }
@@ -137,10 +137,10 @@ namespace Testing_Layer
             u1.Transactions.Add(tr1);
             u2.Transactions.Add(tr2);
             u2.Transactions.Add(tr3);
-            await _userContext.CreateAsync(u1);
-            await _userContext.CreateAsync(u2);
+            _userContext.Create(u1);
+            _userContext.Create(u2);
 
-            List<User> users = await _userContext.ReadAllAsync(true, true);
+            List<User> users = _userContext.ReadAll(true, true);
             Assert.That(users[1].Transactions.Count == 2,
                 "ReadAllAsync() for users does not work properly with navigational properties!");
         }
@@ -150,11 +150,11 @@ namespace Testing_Layer
         {
             User u1 = new User("Svetlin", "svetlyo123");
 
-            await _userContext.CreateAsync(u1);
+            _userContext.Create(u1);
             u1.Password = "svetlin123";
-            await _userContext.UpdateAsync(u1, false);
+            _userContext.Update(u1, false);
 
-            User userFromDb = await _userContext.ReadAsync(u1.Id);
+            User userFromDb = _userContext.Read(u1.Id);
 
             Assert.That(userFromDb.Password == "svetlin123", "UpdateAsync() for users does not work!");
         }
@@ -168,11 +168,11 @@ namespace Testing_Layer
             u1.Transactions.Add(tr1);
             u1.Transactions.Add(tr2);
 
-            await _userContext.CreateAsync(u1);
+            _userContext.Create(u1);
             u1.Transactions[0].Category = "Shoes";
-            await _userContext.UpdateAsync(u1, true);
+            _userContext.Update(u1, true);
 
-            User userFromDb = await _userContext.ReadAsync(u1.Id);
+            User userFromDb = _userContext.Read(u1.Id);
 
             Assert.That(userFromDb.Transactions[0].Category == "Shoes",
                 "UpdateAsync() for users does not work properly with navigational properties!");
@@ -183,10 +183,10 @@ namespace Testing_Layer
         {
             User u1 = new User("Ginka", "ginka123");
 
-            await _userContext.CreateAsync(u1);
-            int countBefore = (await _userContext.ReadAllAsync()).Count;
-            await _userContext.DeleteAsync(u1.Id);
-            int countAfter = (await _userContext.ReadAllAsync()).Count;
+            _userContext.Create(u1);
+            int countBefore = _userContext.ReadAll().Count;
+            _userContext.Read(u1.Id);
+            int countAfter = _userContext.ReadAll().Count;
 
             Assert.That(countBefore - 1 == countAfter, "DeleteAsync() for users does not work!");
         }

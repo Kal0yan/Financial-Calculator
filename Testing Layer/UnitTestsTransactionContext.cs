@@ -39,10 +39,10 @@ namespace Testing_Layer
         [Test]
         public async Task TransactionCreateTest()
         {
-            Transaction newTransaction = new Transaction("Food", 25);
-            TransactionContext transactionContext = new TransactionContext(_context);
+            Transaction newTransaction = new Transaction("Food", 25, true, 1);
+            TransactionContext transactionContext = new TransactionContext();
 
-            await transactionContext.CreateAsync(newTransaction);
+            transactionContext.Create(newTransaction);
 
             Transaction transactionFromDb = await _context.Transactions.FirstOrDefaultAsync(
                 t => t.Category == "Food" && t.Amount == 25);
@@ -53,9 +53,9 @@ namespace Testing_Layer
         [Test]
         public async Task ReadWithoutTransactionsTest()
         {
-            TransactionContext transactionContext = new TransactionContext(_context);
+            TransactionContext transactionContext = new TransactionContext();
 
-            Transaction emptyTransaction = await transactionContext.ReadAsync(0);
+            Transaction emptyTransaction = transactionContext.Read(0);
 
             Assert.That(() => emptyTransaction == null, "There should be no transactions in the context! ");
         }
@@ -63,11 +63,11 @@ namespace Testing_Layer
         [Test]
         public async Task ReadWithTransactionTest()
         {
-            TransactionContext transactionContext = new TransactionContext(_context);
+            TransactionContext transactionContext = new TransactionContext();
             Transaction newTransaction = new Transaction("House", 100);
-            await transactionContext.CreateAsync(newTransaction);
+            transactionContext.Create(newTransaction);
 
-            Transaction transactionFromDb = await transactionContext.ReadAsync(1);
+            Transaction transactionFromDb = transactionContext.Read(1);
 
             Assert.That(() => transactionFromDb != null, "The ReadAsync() method should return correct transaction! ");
         }
@@ -75,18 +75,18 @@ namespace Testing_Layer
         [Test]
         public async Task ReadAllTest()
         {
-            TransactionContext transactionContext = new TransactionContext(_context);
+            TransactionContext transactionContext = new TransactionContext();
             Transaction newTransaction = new Transaction("House", 100);
             Transaction newTransaction2 = new Transaction("Food", 10);
             Transaction newTransaction3 = new Transaction("Entertainment", 50);
 
-            int countBefore = (await transactionContext.ReadAllAsync()).Count;
+            int countBefore = (transactionContext.ReadAll()).Count;
 
-            await transactionContext.CreateAsync(newTransaction);
-            await transactionContext.CreateAsync(newTransaction2);
-            await transactionContext.CreateAsync(newTransaction3);
+            transactionContext.Create(newTransaction);
+            transactionContext.Create(newTransaction2);
+            transactionContext.Create(newTransaction3);
 
-            int countAfter = (await transactionContext.ReadAllAsync()).Count;
+            int countAfter = transactionContext.ReadAll().Count;
 
             Assert.That(countAfter == countBefore + 3, "ReadAllAsync() for transactions does not work!");
 
@@ -95,15 +95,15 @@ namespace Testing_Layer
         [Test]
         public async Task UpdateTest()
         {
-            TransactionContext transactionContext = new TransactionContext(_context);
+            TransactionContext transactionContext = new TransactionContext();
             Transaction newTransaction = new Transaction("House", 100);
 
-            await transactionContext.CreateAsync(newTransaction);
+            transactionContext.Create(newTransaction);
 
-            Transaction transactionFromDb = await transactionContext.ReadAsync(1, false, false);
+            Transaction transactionFromDb = transactionContext.Read(1, false, false);
             transactionFromDb.Amount += 50;
 
-            await transactionContext.UpdateAsync(transactionFromDb);
+             transactionContext.Update(transactionFromDb);
 
             Assert.That(transactionFromDb.Amount == 150, "UpdateAsync() for transactions does not work!");
         }
@@ -111,14 +111,14 @@ namespace Testing_Layer
         [Test]
         public async Task DeleteTestV1()
         {
-            TransactionContext transactionContext = new TransactionContext(_context);
+            TransactionContext transactionContext = new TransactionContext();
             Transaction newTransaction = new Transaction("House", 100);
 
-            await transactionContext.CreateAsync(newTransaction);
+            transactionContext.Create(newTransaction);
 
-            int countBefore = (await transactionContext.ReadAllAsync()).Count;
-            await transactionContext.DeleteAsync(newTransaction.Id);
-            int countAfter = (await transactionContext.ReadAllAsync()).Count;
+            int countBefore =  transactionContext.ReadAll().Count;
+             transactionContext.Delete(newTransaction.Id);
+            int countAfter = ( transactionContext.ReadAll()).Count;
 
             Assert.That(countAfter + 1 == countBefore, "DeleteAsync() for transactions does not work!");
         }
@@ -126,15 +126,15 @@ namespace Testing_Layer
         [Test]
         public async Task DeleteTestV2()
         {
-            TransactionContext transactionContext = new TransactionContext(_context);
+            TransactionContext transactionContext = new TransactionContext();
             Transaction newTransaction = new Transaction("House", 100);
 
-            await transactionContext.CreateAsync(newTransaction);
+            transactionContext.Create(newTransaction);
             int idFromDb = newTransaction.Id;
 
-            await transactionContext.DeleteAsync(newTransaction.Id);
+            transactionContext.Delete(newTransaction.Id);
 
-            Transaction emptyTransaction = await transactionContext.ReadAsync(idFromDb);
+            Transaction emptyTransaction = transactionContext.Read(idFromDb);
 
             Assert.IsNull(emptyTransaction, "DeleteAsync() for transactions does not work!");
         }

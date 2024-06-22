@@ -5,7 +5,7 @@
 namespace DataAccess_Layer.Migrations
 {
     /// <inheritdoc />
-    public partial class FinancialCalculatorDb : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -35,23 +35,23 @@ namespace DataAccess_Layer.Migrations
                     Amount = table.Column<float>(type: "real", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     IncomeOrOutcome = table.Column<bool>(type: "bit", nullable: false),
-                    UserId = table.Column<int>(type: "int", nullable: false),
-                    Transaction = table.Column<int>(type: "int", nullable: true)
+                    UserId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Transactions", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Transactions_Users_Transaction",
-                        column: x => x.Transaction,
+                        name: "FK_Transactions_Users_UserId",
+                        column: x => x.UserId,
                         principalTable: "Users",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Transactions_Transaction",
+                name: "IX_Transactions_UserId",
                 table: "Transactions",
-                column: "Transaction");
+                column: "UserId");
         }
 
         /// <inheritdoc />

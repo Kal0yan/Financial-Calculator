@@ -7,16 +7,16 @@ using System.Threading.Tasks;
 
 namespace DataAccess_Layer
 {
-    public interface IDB <T, K>
+    public interface IDB<T, K>
     {
-        Task CreateAsync(T entity);
+        void Create(T entity);
 
-        Task<T> ReadAsync(K key, bool isReadOnly = true, bool useNavigationalProperties = false);
+        T Read(K key, bool isReadOnly = true, bool useNavigationalProperties = false);
 
-        Task<List<T>> ReadAllAsync(bool isReadOnly = true, bool useNavigationalProperties = false);
+        List<T> ReadAll(bool isReadOnly = true, bool useNavigationalProperties = false);
 
-        Task UpdateAsync(T entity, bool useNavigationalProperties = false);
+        void Update(T entity, bool useNavigationalProperties = false);
 
-        Task DeleteAsync(K key);
+        void Delete(K key);
     }
 }

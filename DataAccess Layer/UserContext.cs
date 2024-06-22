@@ -14,33 +14,18 @@ namespace DataAccess_Layer
     {
         private readonly AppDbContext _context;
 
-        public UserContext(AppDbContext context)
+        public UserContext()
         {
-            _context = context;
+            _context = new();
         }
 
-        public async Task CreateAsync(User entity)
+        public void Create(User entity)
         {
             _context.Users.Add(entity);
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
         }
 
-        public async Task<User> ReadAsync(int key, bool isReadOnly = true, bool useNavigationalProperties = false)
-        {
-            IQueryable<User> query = _context.Users;
-
-            if (isReadOnly)
-            {
-                query = query.AsNoTrackingWithIdentityResolution();
-            }
-            if(useNavigationalProperties)
-            {
-                query = query.Include(x => x.Transactions);
-            }
-            return await query.SingleOrDefaultAsync(x => x.Id == key);
-        }
-
-        public async Task<List<User>> ReadAllAsync(bool isReadOnly = true, bool useNavigationalProperties = false)
+        public User Read(int key, bool isReadOnly = true, bool useNavigationalProperties = false)
         {
             IQueryable<User> query = _context.Users;
 
@@ -52,23 +37,46 @@ namespace DataAccess_Layer
             {
                 query = query.Include(x => x.Transactions);
             }
-            return await query.ToListAsync();
+
+            User user = query.SingleOrDefault(x => x.Id == key);
+
+            if (user == null)
+            {
+                throw new ArgumentException("User with id:" + key + "doesn`t exist");
+            }
+
+            return user;
         }
 
-        public async Task UpdateAsync(User entity, bool useNavigationalProperties = false)
+        public List<User> ReadAll(bool isReadOnly = true, bool useNavigationalProperties = false)
         {
-            User userFromDb = await ReadAsync(entity.Id, false, useNavigationalProperties);
+            IQueryable<User> query = _context.Users;
+
+            if (isReadOnly)
+            {
+                query = query.AsNoTrackingWithIdentityResolution();
+            }
+            if (useNavigationalProperties)
+            {
+                query = query.Include(x => x.Transactions);
+            }
+            return query.ToList();
+        }
+
+        public void Update(User entity, bool useNavigationalProperties = false)
+        {
+            User userFromDb = Read(entity.Id, false, useNavigationalProperties);
             _context.Entry(userFromDb).CurrentValues.SetValues(entity);
 
             if (useNavigationalProperties)
             {
                 List<Transaction> transactions = new List<Transaction>(userFromDb.Transactions);
 
-                for(int i = 0; i < entity.Transactions.Count; i++)
+                for (int i = 0; i < entity.Transactions.Count; i++)
                 {
-                    Transaction transactionFromDb = await _context.Transactions.FindAsync(entity.Transactions[i].Id);
+                    Transaction transactionFromDb =  _context.Transactions.Find(entity.Transactions[i].Id);
 
-                    if(transactionFromDb is not null && !transactions.Contains(transactionFromDb))
+                    if (transactionFromDb is not null && !transactions.Contains(transactionFromDb))
                     {
                         transactions.Add(transactionFromDb);
                     }
@@ -79,20 +87,22 @@ namespace DataAccess_Layer
                 }
 
                 entity.Transactions = transactions;
-                await _context.SaveChangesAsync();
+                _context.SaveChanges();
             }
+
+            _context.SaveChanges();
         }
 
-        public async Task DeleteAsync(int key)
+        public void Delete(int key)
         {
-            User userFromDb = await ReadAsync(key, false);
-            
-            if(userFromDb is null)
+            User userFromDb = Read(key, false);
+
+            if (userFromDb is null)
             {
                 throw new ArgumentException($"User with id {key} does not exist.");
             }
             _context.Users.Remove(userFromDb);
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
         }
     }
 }
